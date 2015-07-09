@@ -1,0 +1,7 @@
+win/Debug
+win/Release
+win/x64
+win/ipch
+win/timer/Debug
+win/timer/Release
+win/timer/x64
