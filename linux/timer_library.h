@@ -31,8 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define TIMER_LIB_USE_HIGHRES 3
 
 /*other misc useful definitions*/
-#define TIMER_LIB_SEC_TO_NANOSEC_MULTIPLIER 1000000000	/*10^9*/
-#define TIMER_LIB_MICROSEC_TO_NANOSEC_MULTIPLIER 1000	/*10^3*/
+#define TIMER_LIB_SEC_TO_NANOSEC_MULTIPLIER 1000000	/*10^9*/
+#define TIMER_LIB_MICROSEC_TO_NANOSEC_MULTIPLIER 1	/*10^3*/
+#define TIMER_IIB_REAL_NANOSEC_DIVIDER 1000
 #define TIMER_LIB_AVG_RESOLUTION_REP_COUNT 10
 
 
@@ -62,14 +63,6 @@ double timeStamp;
 double timerResolutionOnThisSystem;
 
 /*function definitions*/
-void logErrorMessage ( int errorCode );
-double getResolutionOfTimer ( int timerType );
-int getErrorMessage(char *bufferToHoldErrorMessage, int lengthOfBuffer);
-int initializeTimer();
-int initializeSpecificTimer( int timerToUse );
-void timer_library_fini();
-void timer_library_init();
-
 /***************************************************/
 /*PASTING CONTENTS FROM FILE GENERATAED USING javah*/
 /***********ADDED DECLARATON OF getTimeStamp********/
