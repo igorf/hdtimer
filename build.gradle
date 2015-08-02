@@ -1,0 +1,100 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+apply plugin: 'c'
+
+model {
+	repositories {
+		libs(PrebuiltLibraries) {
+		  	jdk {
+		    	headers.srcDirs "${System.properties['java.home']}/../include",
+		    	"${System.properties['java.home']}/../include/win32",
+		    	"${System.properties['java.home']}/../include/win64",
+		    	"${System.properties['java.home']}/../include/darwin",
+		    	"${System.properties['java.home']}/../include/linux"
+		  	}
+		}
+	}
+}
+
+model {
+	platforms {
+		x64 { architecture "x86_64" }
+		x86 { architecture "x86" }
+	}
+}
+
+model {
+	components {
+    	timer(NativeLibrarySpec) {
+    		sources {
+        		c {
+          			source {
+            			lib library: 'timer', linkage: 'static'
+            			lib library: 'jdk', linkage: 'api'
+            			include "**/*.c"
+            			srcDir getCSrcDir()
+          			}
+        		}
+      		}
+    	}
+  	}
+}
+
+binaries.all {
+	if (toolChain in Gcc) {
+    	cCompiler.args "-fPIC", "-dynamiclib", "-shared"
+    	linker.args "-lrt"
+	}
+}
+
+String getCSrcDir() {
+	"src/c/${getOs()}"
+}
+
+String getOs() {
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        return "win"
+    } else if (Os.isFamily(Os.FAMILY_MAC)){
+        return "mac"
+    } else if (Os.isFamily(Os.FAMILY_UNIX)) {
+        return "linux"
+    }
+    
+    return "unsupported"
+}
+
+String getPlatform() {
+	if (Os.isArch("x86_64") || Os.isArch("amd64")) {
+		return "64"
+	} 
+	return "32"
+}
+
+String getOutputDir() {
+	"build/dist/${getOs()}/${getPlatform()}"
+}
+
+String getDistFilename() {
+	"${getFilename()}.${getExtention()}"
+}
+
+String getExtention() {
+	def exts = ['win': 'dll', 'mac': 'dylib', 'linux': 'so']
+	return exts[getOs()] ?: 'unk'
+}
+
+String getFilename() {
+	def names = ['win': 'timer', 'mac': 'libtimer', 'linux': 'libtimer']
+	return names[getOs()] ?: 'timer'
+}
+
+task nativelib (type: Copy, dependsOn: build) {
+	from 'build/binaries/timerSharedLibrary'
+	into "${getOutputDir()}"
+	include('libtimer.so')
+	rename ('libtimer.so', "${getDistFilename()}")
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.5'
+}
